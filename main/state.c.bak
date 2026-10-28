@@ -1,0 +1,65 @@
+#include "state.h"
+#include "config.h"
+#include <string.h>
+#include "nvs_flash.h"
+#include "nvs.h"
+#include "esp_log.h"
+
+static const char *TAG = "STATE";
+
+cocis_state_t g_state = {0};
+SemaphoreHandle_t g_state_mutex = NULL;
+
+void state_init(void)
+{
+    g_state_mutex = xSemaphoreCreateMutex();
+    configASSERT(g_state_mutex);
+
+    // Load persisted values from NVS
+    nvs_handle_t nvs;
+    if (nvs_open(NVS_NAMESPACE, NVS_READONLY, &nvs) == ESP_OK) {
+        size_t len = sizeof(g_state.schedule_start);
+        if (nvs_get_str(nvs, "sched_start", g_state.schedule_start, &len) != ESP_OK)
+            strncpy(g_state.schedule_start, SCHEDULE_START_DEF, sizeof(g_state.schedule_start));
+        len = sizeof(g_state.schedule_end);
+        if (nvs_get_str(nvs, "sched_end", g_state.schedule_end, &len) != ESP_OK)
+            strncpy(g_state.schedule_end, SCHEDULE_END_DEF, sizeof(g_state.schedule_end));
+        int32_t occ = 0;
+        if (nvs_get_i32(nvs, NVS_OCCUPANCY, &occ) == ESP_OK)
+            g_state.occupancy = (int)occ;
+        nvs_close(nvs);
+    } else {
+        strncpy(g_state.schedule_start, SCHEDULE_START_DEF, sizeof(g_state.schedule_start));
+        strncpy(g_state.schedule_end, SCHEDULE_END_DEF, sizeof(g_state.schedule_end));
+    }
+    ESP_LOGI(TAG, "State init: occ=%d sched=%s-%s",
+             g_state.occupancy, g_state.schedule_start, g_state.schedule_end);
+}
+
+void state_lock(void)   { xSemaphoreTake(g_state_mutex, portMAX_DELAY); }
+void state_unlock(void) { xSemaphoreGive(g_state_mutex); }
+
+bool state_tag_is_inside(const char *tag)
+{
+    for (int i = 0; i < g_state.tags_inside_count; i++)
+        if (strncmp(g_state.tags_inside[i], tag, TAG_LEN) == 0) return true;
+    return false;
+}
+
+void state_tag_add(const char *tag)
+{
+    if (g_state.tags_inside_count >= MAX_INSIDE_TAGS) return;
+    strncpy(g_state.tags_inside[g_state.tags_inside_count++], tag, TAG_LEN);
+}
+
+void state_tag_remove(const char *tag)
+{
+    for (int i = 0; i < g_state.tags_inside_count; i++) {
+        if (strncmp(g_state.tags_inside[i], tag, TAG_LEN) == 0) {
+            g_state.tags_inside_count--;
+memcpy(g_state.tags_inside[i],
+       g_state.tags_inside[g_state.tags_inside_count],
+       sizeof(g_state.tags_inside[0]));
+        }
+    }
+}

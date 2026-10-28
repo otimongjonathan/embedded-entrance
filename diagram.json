@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "author": "CoCIS Smart Control Project",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "id": "esp32",
+      "type": "board-esp32-devkit-c-v4",
+      "left": 0,
+      "top": 150,
+      "attrs": { "flashSize": "4MB" }
+    },
+    {
+      "id": "rfid_entry",
+      "type": "board-mfrc522",
+      "left": 300,
+      "top": 50,
+      "attrs": { "uid": "11:22:33:44" }
+    },
+    {
+      "id": "rfid_exit",
+      "type": "board-mfrc522",
+      "left": 300,
+      "top": 300,
+      "attrs": { "uid": "11:22:33:44" }
+    },
+    {
+      "id": "sd1",
+      "type": "wokwi-microsd-card",
+      "left": 550,
+      "top": 150,
+      "attrs": {}
+    },
+    {
+      "id": "servo_en",
+      "type": "wokwi-servo",
+      "left": 550,
+      "top": 0,
+      "attrs": { "hornColor": "white" }
+    },
+    {
+      "id": "servo_ex",
+      "type": "wokwi-servo",
+      "left": 700,
+      "top": 0,
+      "attrs": { "hornColor": "black" }
+    },
+    {
+      "id": "led_green",
+      "type": "wokwi-led",
+      "left": 550,
+      "top": 350,
+      "attrs": { "color": "green" }
+    },
+    {
+      "id": "led_red",
+      "type": "wokwi-led",
+      "left": 620,
+      "top": 350,
+      "attrs": { "color": "red" }
+    },
+    {
+      "id": "buzzer1",
+      "type": "wokwi-buzzer",
+      "left": 700,
+      "top": 250,
+      "attrs": { "volume": "0.1" }
+    }
+  ],
+  "connections": [
+    ["esp32:3V3",  "rfid_entry:3.3V", "red",    []],
+    ["esp32:GND",  "rfid_entry:GND",  "black",  []],
+    ["esp32:3V3",  "rfid_exit:3.3V",  "red",    []],
+    ["esp32:GND",  "rfid_exit:GND",   "black",  []],
+    ["esp32:3V3",  "sd1:VCC",         "red",    []],
+    ["esp32:GND",  "sd1:GND",         "black",  []],
+    ["esp32:18",   "rfid_entry:SCK",  "orange", []],
+    ["esp32:18",   "rfid_exit:SCK",   "orange", []],
+    ["esp32:18",   "sd1:SCK",         "orange", []],
+    ["esp32:19",   "rfid_entry:MISO", "purple", []],
+    ["esp32:19",   "rfid_exit:MISO",  "purple", []],
+    ["esp32:19",   "sd1:DO",          "purple", []],
+    ["esp32:23",   "rfid_entry:MOSI", "blue",   []],
+    ["esp32:23",   "rfid_exit:MOSI",  "blue",   []],
+    ["esp32:23",   "sd1:DI",          "blue",   []],
+    ["esp32:5",    "rfid_entry:SDA",  "green",  []],
+    ["esp32:4",    "rfid_entry:RST",  "yellow", []],
+    ["esp32:15",   "rfid_exit:SDA",   "green",  []],
+    ["esp32:2",    "rfid_exit:RST",   "yellow", []],
+    ["esp32:22",   "sd1:CS",          "green",  []],
+    ["esp32:13",   "servo_en:PWM",    "cyan",   []],
+    ["esp32:3V3",  "servo_en:V+",     "red",    []],
+    ["esp32:GND",  "servo_en:GND",    "black",  []],
+    ["esp32:33",   "servo_ex:PWM",    "cyan",   []],
+    ["esp32:3V3",  "servo_ex:V+",     "red",    []],
+    ["esp32:GND",  "servo_ex:GND",    "black",  []],
+    ["esp32:12",   "led_green:A",     "green",  []],
+    ["esp32:GND",  "led_green:C",     "black",  []],
+    ["esp32:14",   "led_red:A",       "red",    []],
+    ["esp32:GND",  "led_red:C",       "black",  []],
+    ["esp32:27",   "buzzer1:1",       "purple", []],
+    ["esp32:GND",  "buzzer1:2",       "black",  []]
+  ]
+}
